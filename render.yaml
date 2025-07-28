@@ -6,4 +6,4 @@ services:
     startCommand: streamlit run app/main.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9
+        value: 3.10

@@ -18,3 +18,4 @@ librosa
 soundfile
 gdown
 dotenv
+tensorflow>=2.13.0

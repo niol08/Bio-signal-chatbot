@@ -35,7 +35,6 @@ def load_emg_model():
     model.compile()         
     return model
 
-from keras.models import load_model
 
 def load_vag_model():
     ensure_models_downloaded()

@@ -8,8 +8,8 @@ from huggingface_hub import hf_hub_download
 def load_mitbih_model():
     
     model_path = hf_hub_download(
-        repo_id="niol08/Bio-signal-chatbot",
-        filename="src/MLII-latest.keras"
+        repo_id="niol08/Bio-signal-models",
+        filename="MLII-latest.keras"
     )
     
     return load_model(
@@ -23,8 +23,8 @@ def load_mitbih_model():
 
 def load_pcg_model():
     model_path = hf_hub_download(
-        repo_id="niol08/Bio-signal-chatbot", 
-        filename="src/pcg_model.h5"
+        repo_id="niol08/Bio-signal-models",
+        filename="pcg_model.h5"
     )
     
     model = load_model(model_path, compile=False)
@@ -33,8 +33,8 @@ def load_pcg_model():
 
 def load_emg_model():
     model_path = hf_hub_download(
-        repo_id="niol08/Bio-signal-chatbot",
-        filename="src/emg_model.h5"
+        repo_id="niol08/Bio-signal-models",
+        filename="emg_model.h5"
     )
     
     model = load_model(model_path, compile=False)
@@ -44,8 +44,8 @@ def load_emg_model():
 
 def load_vag_model():
     model_path = hf_hub_download(
-        repo_id="niol08/Bio-signal-chatbot",
-        filename="src/vag_feature_classifier.pkl"
+        repo_id="niol08/Bio-signal-models",
+        filename="vag_feature_classifier.pkl"
     )
     
     return joblib.load(model_path)

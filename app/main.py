@@ -19,13 +19,16 @@ st.set_page_config(page_title="Biosignal Chatbot", page_icon="🩺", layout="cen
 st.title("🩺 Biosignal Diagnostic Chatbot")
 
 
-MODELS = {
-    "ECG": load_mitbih_model(),
-    "PCG": load_pcg_model(),
-    "EMG": load_emg_model(), 
-    "VAG": load_vag_model(),
-}
+@st.cache_resource
+def get_models():
+    return {
+        "ECG": None,  
+        "PCG": None,  
+        "EMG": None,  
+        "VAG": None,  
+    }
 
+MODELS = get_models()
 
 FILE_TYPES = {
     "ECG": ["csv", "txt"],

@@ -1,11 +1,11 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from download_models import ensure_models_downloaded
+
 
 from model_loader import load_mitbih_model, load_pcg_model, load_emg_model, load_vag_model
 from chatbot import analyze_signal
-from util import analyze_pcg_signal, analyze_emg_signal, predict_vag_from_features,vag_to_features
+from util import analyze_pcg_signal, analyze_emg_signal, predict_vag_from_features
 
 
 load_dotenv()
@@ -14,8 +14,6 @@ try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 except:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-
-ensure_models_downloaded()
 
 st.set_page_config(page_title="Biosignal Chatbot", page_icon="🩺", layout="centered")
 st.title("🩺 Biosignal Diagnostic Chatbot")

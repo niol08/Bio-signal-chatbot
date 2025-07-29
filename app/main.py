@@ -108,7 +108,12 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
         )
 
        
+
         if sig == "ECG" and uploaded and st.button("Run Diagnostic", key=f"run_{sig}"):
+            if MODELS["ECG"] is None:
+                with st.spinner("Loading ECG model..."):
+                    MODELS["ECG"] = load_mitbih_model()
+            
             label, human, conf, gnote = analyze_signal(
                 uploaded, MODELS["ECG"], GEMINI_API_KEY, signal_type="ECG"
             )
@@ -119,8 +124,11 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
             elif not GEMINI_API_KEY:
                 st.info("Gemini key missing – no explanation.")
 
-    
         elif sig == "PCG" and uploaded and st.button("Run Diagnostic", key=f"run_{sig}"):
+            if MODELS["PCG"] is None:
+                with st.spinner("Loading PCG model..."):
+                    MODELS["PCG"] = load_pcg_model()
+            
             label, human, conf, gnote = analyze_pcg_signal(
                 uploaded, MODELS["PCG"], GEMINI_API_KEY
             )
@@ -132,8 +140,12 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                 st.info("Gemini key missing – no explanation.")
 
         elif sig == "EMG" and uploaded and st.button("Run Diagnostic", key=f"run_{sig}"):
+            if MODELS["EMG"] is None:
+                with st.spinner("Loading EMG model..."):
+                    MODELS["EMG"] = load_emg_model()
+            
             human, conf, gnote = analyze_emg_signal(
-            uploaded, MODELS["EMG"], GEMINI_API_KEY
+                uploaded, MODELS["EMG"], GEMINI_API_KEY
             )
             st.success(f"**{human.upper()}**\n\nConfidence: {conf:.2%}")
             if gnote:
@@ -143,6 +155,9 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                 st.info("Gemini key missing – no explanation.")
                 
         elif sig == "VAG" and uploaded and st.button("Run Diagnostic", key=f"run_{sig}"):
+            if MODELS["VAG"] is None:
+                with st.spinner("Loading VAG model..."):
+                    MODELS["VAG"] = load_vag_model()
             
             label, human, conf, gnote = predict_vag_from_features(
                 uploaded, MODELS["VAG"], GEMINI_API_KEY
@@ -153,6 +168,8 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                 st.write(gnote)
             elif not GEMINI_API_KEY:
                 st.info("Gemini key missing – no explanation.")
+
+
 
 
         else:

@@ -7,8 +7,31 @@ from download_models import ensure_models_downloaded
 
 def load_mitbih_model():
     ensure_models_downloaded()
-    return load_model(
+    
+    models_dir = Path("models")
+    if models_dir.exists():
+        print(f"Models directory contents: {list(models_dir.glob('*'))}")
+    else:
+        print("Models directory doesn't exist!")
+        models_dir.mkdir(exist_ok=True)
+
+    possible_paths = [
         "models/MLII-latest.keras",
+        "../models/MLII-latest.keras"
+    ]
+    
+    model_path = None
+    for path in possible_paths:
+        if Path(path).exists():
+            model_path = path
+            print(f"Found ECG model at: {path}")
+            break
+    
+    if not model_path:
+        raise FileNotFoundError(f"ECG model not found. Checked: {possible_paths}")
+    
+    return load_model(
+        model_path,
         custom_objects={
             "zeropad": zeropad,
             "zeropad_output_shape": zeropad_output_shape
@@ -18,9 +41,24 @@ def load_mitbih_model():
 
 def load_pcg_model():
     ensure_models_downloaded()
-    model_path = Path("models/pcg_model.h5")
-    if not model_path.exists():
-        raise FileNotFoundError(f"PCG model not found at {model_path.resolve()}")
+    models_dir = Path("models")
+    if models_dir.exists():
+        print(f"Models directory for PCG: {list(models_dir.glob('*.h5'))}")
+    
+    possible_paths = [
+        "models/pcg_model.h5",
+        "../models/pcg_model.h5"
+    ]
+    
+    model_path = None
+    for path in possible_paths:
+        if Path(path).exists():
+            model_path = Path(path)
+            break
+        
+        
+    if not model_path:
+        raise FileNotFoundError(f"PCG model not found at {possible_paths}")
     
     model = load_model(model_path, compile=False)
     model.compile()
@@ -28,9 +66,19 @@ def load_pcg_model():
 
 def load_emg_model():
     ensure_models_downloaded()
-    model_path = Path("models/emg_classifier_txt.h5")
-    if not model_path.exists():
-        raise FileNotFoundError(f"EMG model not found at {model_path.resolve()}")
+    possible_paths = [
+        "models/emg_model.h5",
+        "models/emg_classifier_txt.h5",
+        "../models/emg_model.h5"
+    ]
+    
+    model_path = None
+    for path in possible_paths:
+        if Path(path).exists():
+            model_path = Path(path)
+            break
+    if not model_path:
+        raise FileNotFoundError(f"EMG model not found at {possible_paths}")
     model = load_model(model_path, compile=False)
     model.compile()         
     return model
@@ -38,8 +86,18 @@ def load_emg_model():
 
 def load_vag_model():
     ensure_models_downloaded()
-    p = Path("models/vag_feature_classifier.pkl")
-    if not p.exists():
-        raise FileNotFoundError(f"No VAG model at {p.resolve()}")
-    return joblib.load(p)    
+    possible_paths = [
+        "models/vag_feature_classifier.pkl",
+        "../models/vag_feature_classifier.pkl"
+    ]
     
+    model_path = None
+    for path in possible_paths:
+        if Path(path).exists():
+            model_path = Path(path)
+            break
+        
+    if not model_path:
+        raise FileNotFoundError(f"No VAG model at {possible_paths}")
+    
+    return joblib.load(model_path)

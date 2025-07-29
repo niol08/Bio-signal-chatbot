@@ -6,6 +6,16 @@ import streamlit as st
 
 load_dotenv()
 
+def debug_environment():
+    import os
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Directory contents: {os.listdir('.')}")
+    if os.path.exists('models'):
+        print(f"Models directory exists: {os.listdir('models')}")
+    else:
+        print("Models directory does not exist")
+
+
 def extract_file_id_from_url(url):
     """Extract file ID from Google Drive URL"""
     if "drive.google.com" in url:
@@ -44,6 +54,9 @@ def download_from_gdrive(url, output_path):
 
 def ensure_models_downloaded():
     """Download models if they don't exist locally"""
+    
+    debug_environment()
+    
     model_urls = get_model_urls()
     
     for local_path, url in model_urls.items():

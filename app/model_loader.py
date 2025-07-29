@@ -1,5 +1,5 @@
 
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from graph import zeropad, zeropad_output_shape 
 from pathlib import Path
 import joblib
@@ -16,8 +16,9 @@ def load_mitbih_model():
         models_dir.mkdir(exist_ok=True)
 
     possible_paths = [
-        "models/MLII-latest.keras",
-        "../models/MLII-latest.keras"
+            "models/MLII-latest.keras",
+            "../models/MLII-latest.keras",
+            "app/models/MLII-latest.keras"
     ]
     
     model_path = None
@@ -47,7 +48,8 @@ def load_pcg_model():
     
     possible_paths = [
         "models/pcg_model.h5",
-        "../models/pcg_model.h5"
+        "../models/pcg_model.h5",
+        "app/models/pcg_model.h5"
     ]
     
     model_path = None
@@ -67,9 +69,9 @@ def load_pcg_model():
 def load_emg_model():
     ensure_models_downloaded()
     possible_paths = [
-        "models/emg_model.h5",
         "models/emg_classifier_txt.h5",
-        "../models/emg_model.h5"
+        "../models/emg_classifier_txt.h5",
+        "app/models/emg_classifier_txt.h5"
     ]
     
     model_path = None
@@ -88,7 +90,8 @@ def load_vag_model():
     ensure_models_downloaded()
     possible_paths = [
         "models/vag_feature_classifier.pkl",
-        "../models/vag_feature_classifier.pkl"
+        "../models/vag_feature_classifier.pkl",
+        "app/models/vag_feature_classifier.pkl"
     ]
     
     model_path = None

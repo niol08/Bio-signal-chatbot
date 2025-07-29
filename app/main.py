@@ -9,7 +9,11 @@ from util import analyze_pcg_signal, analyze_emg_signal, predict_vag_from_featur
 
 
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+try:
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+except:
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 ensure_models_downloaded()
 

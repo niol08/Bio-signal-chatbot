@@ -61,8 +61,8 @@ class HuggingFaceSpaceClient:
     def __init__(self, hf_token: str):
         self.hf_token = hf_token
         self.headers = {"Authorization": f"Bearer {hf_token}"}
-        # Replace with your actual HF Space URL
-        self.space_url = "https://niol08-bio-signal-models.hf.space"  # Update this!
+        
+        self.space_url = "https://niol08-Bio-signal-chatbot.hf.space"  
     
     def _upload_file_to_space(self, file_data, signal_type: str, filename: str):
         """Upload file to your HF Space and get prediction"""

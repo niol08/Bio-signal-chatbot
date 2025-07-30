@@ -64,6 +64,9 @@ import joblib
 import tempfile
 import os
 
+# Import custom functions for ECG model
+from graph import zeropad, zeropad_output_shape
+
 class HuggingFaceSpaceClient:
     def __init__(self, hf_token: str):
         self.hf_token = hf_token
@@ -101,8 +104,16 @@ class HuggingFaceSpaceClient:
             
             # Load the appropriate model type
             if signal_type == "ECG":
-                st.info("🧠 Loading ECG Keras model...")
-                model = keras.models.load_model(model_path, compile=False)
+                st.info("🧠 Loading ECG Keras model with custom functions...")
+                # Load ECG model with custom functions
+                model = keras.models.load_model(
+                    model_path, 
+                    custom_objects={
+                        "zeropad": zeropad,
+                        "zeropad_output_shape": zeropad_output_shape
+                    },
+                    compile=False
+                )
                 
             elif signal_type == "PCG":
                 st.info("🧠 Loading PCG Keras model...")
@@ -114,7 +125,9 @@ class HuggingFaceSpaceClient:
                 
             elif signal_type == "VAG":
                 st.info("🧠 Loading VAG Scikit-learn model...")
-                model = joblib.load(model_path)
+                # VAG model is saved as a dictionary: {"model": clf, "scaler": scaler, "encoder": le}
+                vag_dict = joblib.load(model_path)
+                model = vag_dict  # Return the entire dictionary
             
             # Cache the loaded model
             self.loaded_models[signal_type] = model
@@ -167,7 +180,7 @@ class HuggingFaceSpaceClient:
         predicted_class_idx = np.argmax(predictions[0])
         confidence = float(predictions[0][predicted_class_idx])
         
-        # ECG classes based on MIT-BIH database
+        # ECG classes based on MIT-BIH database (from graph.py)
         ecg_classes = ["N", "V", "/", "A", "F", "~"]
         class_names = {
             "N": "Normal sinus beat",
@@ -255,7 +268,7 @@ class HuggingFaceSpaceClient:
         elif len(data) < 1000:
             data.extend([0.0] * (1000 - len(data)))
         
-        # Normalize EMG data
+        # Normalize EMG data (from your util.py)
         data_array = np.array(data)
         normalized_data = (data_array - data_array.mean()) / (data_array.std() + 1e-6)
         
@@ -277,8 +290,13 @@ class HuggingFaceSpaceClient:
 
     def predict_vag(self, uploaded_file) -> Tuple[str, str, float]:
         """Predict VAG using vag_feature_classifier.pkl from HuggingFace"""
-        # Download and load VAG model
-        model = self._download_and_load_model("VAG")
+        # Download and load VAG model dictionary
+        vag_dict = self._download_and_load_model("VAG")
+        
+        # Extract components from the dictionary (from your VAG notebook)
+        model = vag_dict["model"]          # RandomForestClassifier
+        scaler = vag_dict["scaler"]        # StandardScaler  
+        encoder = vag_dict["encoder"]      # LabelEncoder
         
         # Process VAG features
         content = uploaded_file.read().decode('utf-8')
@@ -286,44 +304,36 @@ class HuggingFaceSpaceClient:
         
         df = pd.read_csv(io.StringIO(content))
         
-        # Required features for vag_feature_classifier.pkl
+        # Required features for vag_feature_classifier.pkl (from your notebook)
         required_features = ['rms_amplitude', 'peak_frequency', 'spectral_entropy', 
                            'zero_crossing_rate', 'mean_frequency']
         
         if not all(feature in df.columns for feature in required_features):
             raise Exception(f"Missing required features. Need: {required_features}")
         
+        # Extract and scale features (following your notebook workflow)
         features = df[required_features].iloc[0].values.reshape(1, -1)
+        features_scaled = scaler.transform(features)
         
         st.info("🧠 Running VAG prediction with HuggingFace model...")
         
-        # Make prediction with scikit-learn model
-        prediction = model.predict(features)[0]
+        # Make prediction with the RandomForest model
+        prediction_encoded = model.predict(features_scaled)[0]
         
-        # Get prediction probabilities if available
-        if hasattr(model, 'predict_proba'):
-            probabilities = model.predict_proba(features)[0]
-            confidence = float(np.max(probabilities))
-        else:
-            confidence = 0.85  # Default confidence for models without probability
+        # Get prediction probabilities 
+        probabilities = model.predict_proba(features_scaled)[0]
+        confidence = float(np.max(probabilities))
         
-        # VAG classes (adjust based on your model's training)
-        vag_mapping = {
-            0: ("Normal", "Normal Knee Joint"),
-            1: ("Osteoarthritis", "Osteoarthritis Detected"), 
-            2: ("Ligament Injury", "Ligament Injury Detected")
+        # Decode prediction using LabelEncoder (from your notebook: ligament_injury, normal, osteoarthritis)
+        prediction_label = encoder.inverse_transform([prediction_encoded])[0]
+        
+        # Human readable labels
+        human_map = {
+            'normal': 'Normal Knee Joint',
+            'osteoarthritis': 'Osteoarthritis Detected',
+            'ligament_injury': 'Ligament Injury Detected'
         }
         
-        if isinstance(prediction, (int, np.integer)):
-            label, human = vag_mapping.get(prediction, ("Normal", "Normal Knee Joint"))
-        else:
-            # If prediction is string
-            prediction_lower = str(prediction).lower() 
-            if 'osteo' in prediction_lower:
-                label, human = "Osteoarthritis", "Osteoarthritis Detected"
-            elif 'ligament' in prediction_lower:
-                label, human = "Ligament Injury", "Ligament Injury Detected"
-            else:
-                label, human = "Normal", "Normal Knee Joint"
+        human_readable = human_map.get(prediction_label, 'Normal Knee Joint')
         
-        return label, human, confidence
+        return prediction_label.title(), human_readable, confidence

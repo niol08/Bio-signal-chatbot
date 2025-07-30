@@ -314,4 +314,4 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
             if not uploaded:
                 st.info("Upload a file to begin analysis.")
 
-st.caption("© 2025 Biosignal Chatbot | Interface powered by Render, ML by HuggingFace 🤗")
+st.caption("© 2025 Biosignal Chatbot | Interface powered by streamlit cloud, ML by HuggingFace 🤗")

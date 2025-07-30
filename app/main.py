@@ -183,7 +183,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from model_loader import HuggingFaceSpaceClient
-from gemini import query_gemini_rest  # Use your existing Gemini function
+from gemini import query_gemini_rest 
 
 load_dotenv()
 
@@ -191,7 +191,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 if not HF_TOKEN:
-    st.error("🔑 Hugging Face token required!")
+    st.error("Hugging Face token required!")
     st.stop()
 
 st.title("🩺 Biosignal Diagnostic Chatbot")
@@ -215,16 +215,16 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
     with tab:
         st.header(f"{sig} Analysis")
 
-        # Add your existing expanders
+
         if sig == "ECG":
-            with st.expander("📄 ECG Data Requirements"):
+            with st.expander("ECG Data Requirements"):
                 st.markdown(
                     "- Upload a `.csv` or `.txt` file containing **256 numeric values** (single row or single column).\n"
                     "- Example:\n"
                     "```csv\n0.12\n0.15\n-0.05\n...\n```"
                 )
         elif sig == "VAG":
-            with st.expander("📄 VAG Data Requirements"):
+            with st.expander("VAG Data Requirements"):
                 st.markdown(
                 "- Upload a `.csv` file **with headers** containing the following 5 features:\n"
                 "  - `rms_amplitude`\n"
@@ -239,7 +239,7 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                 "```"
                 )
         elif sig == "EMG":
-            with st.expander("📄 EMG Data Requirements"):
+            with st.expander("EMG Data Requirements"):
                 st.markdown(
                     "- Upload a `.txt` or `.csv` file containing **raw EMG signal samples**.\n"
                     "- The model expects **at least 1,000 values** (1-second window at 1 kHz sampling).\n"
@@ -255,7 +255,7 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                     "```"
                 )
         elif sig == "PCG":
-            with st.expander("📄 PCG Data Requirements"):
+            with st.expander("PCG Data Requirements"):
                 st.markdown(
                     "- Upload a `.wav` file containing a **single-channel (mono) PCG signal**.\n"
                     "- The model expects **at least 995 audio samples** (≈0.025s of heart sound at 44.1 kHz).\n"
@@ -276,27 +276,26 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
         )
 
         if uploaded and st.button("Run Diagnostic", key=f"run_{sig}"):
-            with st.spinner(f"🔬 Analyzing {sig} via HuggingFace Space..."):
+            with st.spinner(f"Analyzing {sig} via HuggingFace Space..."):
                 try:
-                    # Send directly to your HF Space - no local processing!
                     if sig == "ECG":
                         label, human, conf = hf_client.predict_ecg(uploaded)
                     elif sig == "PCG":
                         label, human, conf = hf_client.predict_pcg(uploaded)
                     elif sig == "EMG":
                         human, conf = hf_client.predict_emg(uploaded)
-                        label = human  # EMG doesn't have separate label/human
+                        label = human  
                     elif sig == "VAG":
                         label, human, conf = hf_client.predict_vag(uploaded)
                     
                     st.success(f"**{label} – {human}**\n\nConfidence: {conf:.2%}")
                     
-                    # Use your existing Gemini REST API function
+
                     if GEMINI_API_KEY:
                         try:
                             gnote = query_gemini_rest(sig, human, conf, GEMINI_API_KEY)
                             if gnote and not gnote.startswith("⚠️"):
-                                st.markdown("### 🧠 Gemini Insight")
+                                st.markdown("### Gemini Insight")
                                 st.write(gnote)
                             elif not gnote:
                                 st.info("Gemini key missing – no explanation.")
@@ -304,11 +303,11 @@ for tab, sig in zip(tabs, ["ECG", "EMG", "VAG", "PCG"]):
                             st.warning(f"Gemini insight unavailable: {str(e)}")
                     
                 except Exception as e:
-                    st.error(f"❌ Analysis failed: {str(e)}")
-                    st.info("💡 Make sure your HuggingFace Space is running and accessible.")
+                    st.error(f"Analysis failed: {str(e)}")
+                    st.info("Make sure your HuggingFace Space is running and accessible.")
 
         else:
             if not uploaded:
-                st.info("📁 Upload a file to begin analysis.")
+                st.info("Upload a file to begin analysis.")
 
 st.caption("© 2025 Biosignal Chatbot | Interface powered by Render, ML by HuggingFace 🤗")

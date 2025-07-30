@@ -187,20 +187,14 @@ from gemini import query_gemini_rest  # Use your existing Gemini function
 
 load_dotenv()
 
-try:
-    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-    HF_TOKEN = st.secrets["HF_TOKEN"]
-except:
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-    HF_TOKEN = os.getenv("HF_TOKEN", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 if not HF_TOKEN:
     st.error("🔑 Hugging Face token required!")
     st.stop()
 
-st.set_page_config(page_title="Biosignal Chatbot", page_icon="🩺", layout="centered")
 st.title("🩺 Biosignal Diagnostic Chatbot")
-
 # Initialize HF Space client
 @st.cache_resource
 def get_hf_client():

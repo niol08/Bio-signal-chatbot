@@ -61,18 +61,18 @@ def ensure_models_downloaded():
     
     for local_path, url in model_urls.items():
         if not url:
-            print(f"⚠️ No URL found for {local_path}")
+            print(f"No URL found for {local_path}")
             continue
             
         if not os.path.exists(local_path):
             print(f"Downloading {local_path}...")
             try:
                 download_from_gdrive(url, local_path)
-                print(f"✅ Downloaded {local_path}")
+                print(f"Downloaded {local_path}")
             except Exception as e:
-                print(f"❌ Failed to download {local_path}: {e}")
+                print(f"Failed to download {local_path}: {e}")
         else:
-            print(f"✅ {local_path} already exists")
+            print(f"{local_path} already exists")
 
 if __name__ == "__main__":
     ensure_models_downloaded()
